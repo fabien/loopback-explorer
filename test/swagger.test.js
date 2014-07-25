@@ -72,11 +72,11 @@ describe('swagger definition', function() {
   });
 
   describe('Model definition attributes', function() {
-    it('Properly defines basic attributes', function(done) {
+    it('Properly defines basic attributes', function (done) {
       var app = mountSwagger();
 
       var getReq = getAPIDeclaration(app, 'products');
-      getReq.end(function(err, res) {
+      getReq.end(function (err, res) {
         if (err) return done(err);
         var data = res.body.models.product;
         expect(data.id).to.equal('product');
@@ -89,6 +89,27 @@ describe('swagger definition', function() {
         expect(data.properties.aNum.maximum).to.equal('10');
         // Should be Number even in 1.2
         expect(data.properties.aNum.defaultValue).to.equal(5);
+        done();
+      });
+    });
+  });
+
+  describe('Allow model remoting after initiation', function () {
+    it('should be able to access models remoted after initiation', function (done) {
+      var app = mountSwagger();
+
+      var Catalog = loopback.PersistedModel.extend('catalog', {
+        name: {type: 'string', required: true}
+      });
+      Catalog.attachTo(loopback.memory());
+      app.model(Catalog);
+
+      var getReq = getAPIDeclaration(app, 'catalogs');
+
+      getReq.end(function (err, res) {
+        if (err) return done(err);
+        var data = res.body.models.catalog;
+        expect(data.id).to.equal('catalog');
         done();
       });
     });
